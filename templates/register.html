@@ -1,0 +1,27 @@
+<!-- templates/register.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - CSN Exam Registration</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CSN Logo" class="logo" />
+    <h2>Exam Registration System</h2>
+    <h3>Create an account</h3>
+    
+    <form method="POST" action="/register">
+      <div class="form-group">
+        <input type="text" name="first_name" placeholder="First Name" required />
+        <input type="text" name="last_name" placeholder="Last Name" required />
+      </div>
+      <input type="email" name="email" placeholder="Student Email" required />
+      <input type="text" name="nshe_id" placeholder="NSHE ID" required />
+      
+      <button type="submit" class="register-btn">Register</button>
+    </form>
+  </div>
+</body>
+</html>
