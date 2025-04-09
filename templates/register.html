@@ -1,26 +1,94 @@
-<!-- templates/register.html -->
+<!-- 
+  CSN Exam Registration System - Registration Page
+  Allows new users to create accounts for exam registration
+  Submits data to Flask backend via POST /register route
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  
+  <!-- Page title shown in browser tabs/bookmarks -->
   <title>Register - CSN Exam Registration</title>
+  
+  <!-- Main stylesheet link -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  <!-- 
+    - Contains institution branding and registration form
+  -->
   <div class="container">
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CSN Logo" class="logo" />
+    <!-- 
+      Institution Logo 
+      - Served from static files
+      - Uses 'logo' class for consistent sizing
+      - Accessible alt text
+    -->
+    <img src="{{ url_for('static', filename='images/logo.png') }}" 
+         alt="CSN Logo" 
+         class="logo" />
+    
+    <!-- System title (matches login page) -->
     <h2>Exam Registration System</h2>
+    
+    <!-- Page-specific heading -->
     <h3>Create an account</h3>
     
+    <!-- 
+      Registration Form
+      - Submits to /register endpoint via POST
+      - All fields are required for submission
+    -->
     <form method="POST" action="/register">
+      <!-- 
+        Name input group 
+        - Contains first/last name fields
+        - Grouped for potential joint validation
+      -->
       <div class="form-group">
-        <input type="text" name="first_name" placeholder="First Name" required />
-        <input type="text" name="last_name" placeholder="Last Name" required />
+        <input type="text" 
+               name="first_name" 
+               placeholder="First Name" 
+               required 
+               autocomplete="given-name" />
+               
+        <input type="text" 
+               name="last_name" 
+               placeholder="Last Name" 
+               required 
+               autocomplete="family-name" />
       </div>
-      <input type="email" name="email" placeholder="Student Email" required />
-      <input type="text" name="nshe_id" placeholder="NSHE ID" required />
       
-      <button type="submit" class="register-btn">Register</button>
+      <!-- 
+        Student email field
+        - type="email" provides basic validation
+        - Includes "autocomplete" hint
+      -->
+      <input type="email" 
+             name="email" 
+             placeholder="Student Email" 
+             required 
+             autocomplete="email" />
+      
+      <!-- 
+        NSHE ID field
+      -->
+      <input type="text" 
+             name="nshe_id" 
+             placeholder="NSHE ID" 
+             required 
+             autocomplete="username" />
+      
+      <!-- 
+        Submit button
+        - Uses same styling as login page's register button
+        - Triggers form submission
+      -->
+      <button type="submit" class="register-btn">
+        Register
+      </button>
     </form>
   </div>
 </body>
