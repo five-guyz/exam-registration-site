@@ -1,11 +1,26 @@
+/* 
+ * Exam Registration System - Main Stylesheet
+ * Contains all global styles and component-specific styling
+ * for the login/registration interface and confirmation pages.
+ */
+
+/* === BASE/BODY STYLES === */
+/* Sets the background image and base typography for the entire page */
+
 body {
+    /* Full-page background image settings */
     background: url('/static/images/background.png') no-repeat center center fixed;
-    background-size: cover;
+    background-size: cover; /* Ensures image covers entire dsiplay window */
+
+    /* FONT defaults */
     font-family: Arial, sans-serif;
     text-align: center;
     color: #1a237e;
   }
-  
+
+/* === FORM CONTAINER STYLES === */
+/* Styling for the main white form container */
+
   .container {
     background: white;
     padding: 30px;
@@ -14,11 +29,12 @@ body {
     margin: 150px auto;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   }
-  
+
+/* === LOGO STYLES === */
   .logo {
     width: 80px;
   }
-  
+  /* === FORM INPUT STYLES === */
   input {
     width: 90%;
     padding: 10px;
@@ -26,11 +42,14 @@ body {
     border: 1px solid #aaa;
     border-radius: 5px;
   }
-  
+
+/* === BUTTON STYLES === */
+/* Base button styles (shared by all buttons) */
+
   .login-btn {
     width: 95%;
     padding: 10px;
-    background: #2962ff;
+    background: #2962ff;  /* Bright blue color */
     color: white;
     border: none;
     border-radius: 5px;
@@ -41,13 +60,17 @@ body {
   .register-btn {
     width: 95%;
     padding: 10px;
-    background: #000000;
+    background: #000000;  /* Black color */
     color: white;
     border: none;
     border-radius: 5px;
     margin-top: 10px;
     cursor: pointer;
   }
+
+/* === CONFIRMATION BOX STYLES === */
+/* Styling for the success/confirmation message box */
+
   .confirmation-box {
     width: 350px;
     margin: 100px auto;
@@ -58,24 +81,32 @@ body {
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     font-family: Arial, sans-serif;
   }
-  
+
+/* Confirmation icon styling */
+
   .confirmation-box .icon {
     font-size: 50px;
     color: #224fd8;
     margin-bottom: 10px;
   }
-  
+
+/* Confirmation heading */
+
   .confirmation-box h2 {
     color: #224fd8;
     margin-bottom: 10px;
   }
-  
+
+/* Confirmation text */
+
   .confirmation-box p {
     font-size: 14px;
     color: #333;
     margin-bottom: 20px;
   }
-  
+
+/* Continue button specific styles */
+
   .btn-continue {
     display: inline-block;
     padding: 10px 20px;
@@ -86,7 +117,8 @@ body {
     font-weight: bold;
     transition: background 0.3s ease;
   }
-  
+
+/* Hover state for continue button */
   .btn-continue:hover {
     background-color: #224fd8;
   }
