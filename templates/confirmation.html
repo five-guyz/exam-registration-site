@@ -1,16 +1,40 @@
-<!-- templates/confirmation.html -->
+<!-- 
+  Exam Registration System - Confirmation Page
+  Displays success message after account creation.
+  Inherits styles from main stylesheet (style.css).
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
   <meta charset="UTF-8">
-  <title>Success</title>
+  
+  <!-- Page title visible in browser tab -->
+  <title>Success - Account Created</title>
+  
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  <!-- 
+    Confirmation Box Container
+    - Uses styled components from style.css
+  -->
   <div class="confirmation-box">
+
     <div class="icon">✔</div>
+    
+    <!-- Success heading - with brand blue color -->
     <h2>SUCCESS</h2>
+    
+    <!-- Informational message for user -->
     <p>Congratulations, your account has been successfully created.</p>
+    
+    <!-- 
+      Continue Button 
+      - Links back to home page
+      - Accessible anchor tag rather than button since it navigates
+    -->
     <a href="/" class="btn-continue">Continue</a>
   </div>
 </body>
