@@ -1,24 +1,70 @@
+<!-- 
+  CSN Exam Registration System - Login Page
+  entry point for users to authenticate
+  Connects to Flask backend via POST /login route
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+ 
   <meta charset="UTF-8">
+  
+  <!-- Page title shown in browser tab -->
   <title>CSN Exam Registration System</title>
+  
+  <!-- CSS link using Flask's url_for() -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  <!-- 
+    - Centered card with white background
+    - Contains logo, heading, and auth forms
+  -->
   <div class="container">
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CSN Logo" width="100" />
+    <!-- 
+      CSN Logo 
+      -  loaded from images
+    -->
+    <img src="{{ url_for('static', filename='images/logo.png') }}" 
+         alt="CSN Logo" 
+         width="100" />
+    
+    <!-- System title heading -->
     <h2>Exam Registration System</h2>
     
-    <!-- Login Form -->
+    <!-- 
+      Login Form
+      - Submits to /login route via POST
+    -->
     <form method="POST" action="/login">
-        <input type="text" name="username" placeholder="Username" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit" class="login-btn">Log In</button>
-        <a href="/register"><button type="button" class="register-btn">Register</button></a>
+        <!-- Username input field -->
+        <input type="text" 
+               name="username" 
+               placeholder="Username" 
+               required><br>
+        
+        <!-- Password input field -->
+        <input type="password" 
+               name="password" 
+               placeholder="Password" 
+               required><br>
+        
+        <!-- Form submission button -->
+        <button type="submit" class="login-btn">
+            Log In
+        </button>
+        
+        <!-- 
+          Registration redirect button
+          - Links to /register route
+        -->
+        <a href="/register">
+            <button type="button" class="register-btn">
+                Register
+            </button>
+        </a>
     </form>
-
-    
   </div>
 </body>
 </html>
