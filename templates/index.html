@@ -22,49 +22,14 @@
     - Contains logo, heading, and auth forms
   -->
   <div class="container">
-    <!-- 
-      CSN Logo 
-      -  loaded from images
-    -->
-    <img src="{{ url_for('static', filename='images/logo.png') }}" 
-         alt="CSN Logo" 
-         width="100" />
-    
-    <!-- System title heading -->
-    <h2>Exam Registration System</h2>
-    
-    <!-- 
-      Login Form
-      - Submits to /login route via POST
-    -->
-    <form method="POST" action="/login">
-        <!-- Username input field -->
-        <input type="text" 
-               name="username" 
-               placeholder="Username" 
-               required><br>
-        
-        <!-- Password input field -->
-        <input type="password" 
-               name="password" 
-               placeholder="Password" 
-               required><br>
-        
-        <!-- Form submission button -->
-        <button type="submit" class="login-btn">
-            Log In
-        </button>
-        
-        <!-- 
-          Registration redirect button
-          - Links to /register route
-        -->
-        <a href="/register">
-            <button type="button" class="register-btn">
-                Register
-            </button>
-        </a>
-    </form>
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="CSN Logo" width="100" />
+    <h1>Welcome to the CSN Exam Registration System</h1>
+    <div class="role-selection">
+        <p>Please choose your role to continue:</p>
+        <a href="/student_portal"><button class="role-btn">I'm a Student</button></a>
+        <a href="/faculty_portal"><button class="role-btn">I'm Faculty</button></a>
+      </div>
+      
   </div>
 </body>
 </html>
