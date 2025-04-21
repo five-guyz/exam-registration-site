@@ -1,0 +1,25 @@
+<!-- templates/student_portal.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>Student Login</h2>
+    <form method="POST" action="/login">
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required><br>
+      <button type="submit" class="btn">Log In</button>
+    </form>
+
+    {% if error %}
+     <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <a href="/register"><button class="btn">Register</button></a>
+  </div>
+</body>
+</html>
