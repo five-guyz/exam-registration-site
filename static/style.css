@@ -123,3 +123,54 @@ body {
     background-color: #224fd8;
   }
   
+  .role-selection {
+    text-align: center;
+    margin-top: 30px;
+  }
+  
+  .role-btn {
+    background-color: #0047AB; /* deep blue */
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 200px;  /* make them wide */
+    transition: background-color 0.3s ease;
+  }
+  
+  .role-btn:hover {
+    background-color: #003080;
+  }
+  /* Common button styling */
+.btn {
+    background-color: #0047AB; /* Deep CSN blue */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    margin-top: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 200px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn:hover {
+    background-color: #003080;
+  }
+  
+  .secondary-btn {
+    background-color: #333;
+    color: white;
+    margin-top: 10px;
+  }
+  .error {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: block;
+  }
+  
