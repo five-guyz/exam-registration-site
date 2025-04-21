@@ -1,9 +1,12 @@
+<<<<<<< HEAD
 <!-- 
   CSN Exam Registration System - Registration Page
   Allows new users to create accounts for exam registration
   Submits data to Flask backend via POST /register route
 -->
 
+=======
+>>>>>>> 8915b0e (Initial push: exam registration system working)
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,6 +17,41 @@
   
   <!-- Main stylesheet link -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script>
+    function validateForm() {
+      const nsheId = document.getElementById("nshe_id").value.trim();
+      const email = document.getElementById("email").value.trim();
+    
+      const nsheError = document.getElementById("nsheError");
+      const emailError = document.getElementById("emailError");
+    
+      let isValid = true;
+      nsheError.textContent = "";
+      emailError.textContent = "";
+  
+      // NSHE must be 10 digits
+      if (!/^\d{10}$/.test(nsheId)) {
+        nsheError.textContent = "NSHE ID must be exactly 10 digits.";
+        isValid = false;
+      }
+  
+      // Check email ends in correct domain
+      if (!email.endsWith("@student.csn.edu")) {
+        emailError.textContent = "Email must be in the format: NSHE_ID@student.csn.edu";
+        isValid = false;
+      } else {
+        // Check if email NSHE matches entered NSHE ID
+        const emailPrefix = email.split("@")[0];
+        if (emailPrefix !== nsheId) {
+          emailError.textContent = "NSHE ID in the email does not match the NSHE ID field.";
+          isValid = false;
+        }
+      }
+  
+      return isValid;
+    }
+  </script>
+  
 </head>
 <body>
   <!-- 
