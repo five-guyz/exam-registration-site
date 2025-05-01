@@ -21,14 +21,17 @@ body {
 /* === FORM CONTAINER STYLES === */
 /* Styling for the main white form container */
 
-  .container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    width: 400px;
-    margin: 150px auto;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  }
+
+.container {
+        max-width: 1000px; /* was smaller before */
+        margin: 40px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+
 
 /* === LOGO STYLES === */
   .logo {
@@ -172,5 +175,13 @@ body {
     font-size: 0.85rem;
     margin-top: 4px;
     display: block;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background: url('/static/images/background.png') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
   }
   
