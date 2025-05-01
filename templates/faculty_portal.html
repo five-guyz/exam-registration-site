@@ -10,11 +10,12 @@
   <div class="container">
     <h2>Faculty Login</h2>
     <form method="POST" action="/login">
-      <input type="text" name="username" placeholder="Username" required><br>
-      <input type="password" name="password" placeholder="Password" required><br>
-
+      <input type="hidden" name="role" value="Faculty">
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
       <button type="submit" class="btn">Log In</button>
     </form>
+    
    
   </div>
 </body>
