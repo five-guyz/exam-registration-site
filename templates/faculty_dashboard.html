@@ -1,0 +1,37 @@
+<!-- 
+ 
+
+dashboard for faculty to print report and option for download as pdf
+
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>Welcome, {{ name }} 👋</h2>
+  </div>
+
+  <div id="pdf content"> 
+    <div>
+        {% for user in users %}
+        <li>{{students.studentID} - {students.FirstName}}</li>
+        {% endfor %}
+        </div>
+    </div>
+    <button onclick="generatepdf()">Download PDF</button>
+    <script>
+        function generatepdf() {
+            const element = document.getElementById('content');
+            html2pdf().from(element).save();
+        }
+        </script>
+</body>
+
+
+</html>
