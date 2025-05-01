@@ -1,37 +1,61 @@
-<!-- 
- 
-
-dashboard for faculty to print report and option for download as pdf
-
--->
+<!-- templates/faculty_dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Welcome</title>
+  <title>Faculty Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <h2>Welcome, {{ name }} 👋</h2>
-  </div>
+    <h2>Welcome, {{ name }}</h2>
+    
+    <h3>Registered Students</h3>
 
-  <div id="pdf content"> 
-    <div>
-        {% for user in users %}
-        <li>{{students.studentID} - {students.FirstName}}</li>
+    <!-- Filter Form -->
+    <form method="GET" action="/faculty_dashboard">
+      <label for="cert">Certification:</label>
+      <select name="cert">
+        <option value="">All</option>
+        {% for cert in certifications %}
+          <option value="{{ cert[0] }}" {% if cert[0] == selected_cert %}selected{% endif %}>{{ cert[1] }}</option>
         {% endfor %}
-        </div>
-    </div>
-    <button onclick="generatepdf()">Download PDF</button>
-    <script>
-        function generatepdf() {
-            const element = document.getElementById('content');
-            html2pdf().from(element).save();
-        }
-        </script>
+      </select>
+
+      <label for="campus">Campus:</label>
+      <select name="campus">
+        <option value="">All</option>
+        {% for campus in campuses %}
+          <option value="{{ campus[0] }}" {% if campus[0] == selected_campus %}selected{% endif %}>{{ campus[1] }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="date">Date:</label>
+      <input type="date" name="date" value="{{ selected_date }}">
+
+      <button type="submit" class="btn">Filter</button>
+    </form>
+
+    <table>
+      <tr>
+        <th>Student Name</th>
+        <th>Email</th>
+        <th>Certification</th>
+        <th>Campus</th>
+        <th>Date</th>
+        <th>Time</th>
+      </tr>
+      {% for row in results %}
+      <tr>
+        <td>{{ row['name'] }}</td>
+        <td>{{ row['email'] }}</td>
+        <td>{{ row['certification'] }}</td>
+        <td>{{ row['campus'] }}</td>
+        <td>{{ row['date'] }}</td>
+        <td>{{ row['time'] }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
 </body>
-
-
 </html>
