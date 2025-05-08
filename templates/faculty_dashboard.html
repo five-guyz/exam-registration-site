@@ -1,61 +1,285 @@
-<!-- templates/faculty_dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Faculty Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard - Exam Registration System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+           background: linear-gradient(to bottom, #ffffff, #f0f0f5);
+           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+        
+
+        h2 {
+            color: #0055a5;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .filter-group select,
+        .filter-group input[type="date"] {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            min-width: 200px;
+        }
+
+        .filter-group button {
+            padding: 8px 20px;
+            background-color: #0055a5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-group button:hover {
+            background-color: #003f7d;
+        }
+
+        .filter-group .btn-reset {
+            background-color: #dc3545;
+        }
+
+        .filter-group .btn-reset:hover {
+            background-color: #b02a37;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #0055a5;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f5c71a;
+            color: #333;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-export {
+            padding: 10px 25px;
+            background-color: #f5c71a;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-export:hover {
+            background-color: #e0b015;
+        }
+
+        .btn-logout {
+            padding: 10px 25px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .btn-logout:hover {
+            background-color: #b02a37;
+        }
+
+        .flash-messages {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .flash-error {
+            color: #dc3545;
+        }
+
+        .flash-success {
+            color: #28a745;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group select,
+            .filter-group input[type="date"] {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .filter-group button {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Welcome, {{ name }}</h2>
-    
-    <h3>Registered Students</h3>
+    <div class="container">
+        <h2>Welcome, {{ name.capitalize() }}!</h2>
+        <h3>Registered Students</h3>
 
-    <!-- Filter Form -->
-    <form method="GET" action="/faculty_dashboard">
-      <label for="cert">Certification:</label>
-      <select name="cert">
-        <option value="">All</option>
-        {% for cert in certifications %}
-          <option value="{{ cert[0] }}" {% if cert[0] == selected_cert %}selected{% endif %}>{{ cert[1] }}</option>
-        {% endfor %}
-      </select>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <p class="flash-{{ category }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
 
-      <label for="campus">Campus:</label>
-      <select name="campus">
-        <option value="">All</option>
-        {% for campus in campuses %}
-          <option value="{{ campus[0] }}" {% if campus[0] == selected_campus %}selected{% endif %}>{{ campus[1] }}</option>
-        {% endfor %}
-      </select>
+        <form method="GET" action="/faculty_dashboard" class="filter-group">
+            <label for="cert">Certification:</label>
+            <select name="cert" id="cert">
+                <option value="">All</option>
+                {% for cert in certifications %}
+                    <option value="{{ cert[0] }}" {% if cert[0] == selected_cert %}selected{% endif %}>
+                        {{ cert[1] }}
+                    </option>
+                {% endfor %}
+            </select>
 
-      <label for="date">Date:</label>
-      <input type="date" name="date" value="{{ selected_date }}">
+            <label for="campus">Campus:</label>
+            <select name="campus" id="campus">
+                <option value="">All</option>
+                {% for campus in campuses %}
+                    <option value="{{ campus[0] }}" {% if campus[0] == selected_campus %}selected{% endif %}>
+                        {{ campus[1] }}
+                    </option>
+                {% endfor %}
+            </select>
 
-      <button type="submit" class="btn">Filter</button>
-    </form>
+            <label for="date">Date:</label>
+            <input type="date" name="date" id="date" value="{{ selected_date if selected_date else '' }}">
 
-    <table>
-      <tr>
-        <th>Student Name</th>
-        <th>Email</th>
-        <th>Certification</th>
-        <th>Campus</th>
-        <th>Date</th>
-        <th>Time</th>
-      </tr>
-      {% for row in results %}
-      <tr>
-        <td>{{ row['name'] }}</td>
-        <td>{{ row['email'] }}</td>
-        <td>{{ row['certification'] }}</td>
-        <td>{{ row['campus'] }}</td>
-        <td>{{ row['date'] }}</td>
-        <td>{{ row['time'] }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
+            <button type="submit">Filter</button>
+            <button type="button" class="btn-reset" onclick="window.location.href='/faculty_dashboard'">Reset Filters</button>
+        </form>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Certification</th>
+                        <th>Campus</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if results %}
+                        {% for row in results %}
+                            <tr>
+                                <td>{{ row['name'] }}</td>
+                                <td>{{ row['email'] }}</td>
+                                <td>{{ row['certification'] }}</td>
+                                <td>{{ row['campus'] }}</td>
+                                <td>{{ row['date'] }}</td>
+                                <td>{{ row['time'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="no-results">No registered students found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="actions">
+            <a href="{{ url_for('faculty_dashboard_export', cert=selected_cert, campus=selected_campus, date=selected_date) }}" class="btn-export">Export as CSV</a>
+            <a href="/logout" class="btn-logout">Logout</a>
+        </div>
+    </div>
 </body>
 </html>
