@@ -1,151 +1,362 @@
-<!-- templates/dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Exam Registration System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Exam Registration System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        /* Additional quick styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            margin: 40px auto;
+            padding: 30px;
+            max-width: 1200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+
+        h2 {
+            color: #0055a5;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        h3 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
         .filter-group {
             display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
             justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            align-items: center;
         }
-        .exam-card {
+
+        .filter-group label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .filter-group select,
+        .filter-group input[type="date"] {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 5px;
             border: 1px solid #ccc;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            text-align: center;
-            background: white;
+            min-width: 200px;
         }
-        .exam-card.hidden {
-            display: none;
+
+        .filter-group button {
+            padding: 8px 20px;
+            background-color: #0055a5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-group button:hover {
+            background-color: #003f7d;
+        }
+
+        .filter-group .btn-reset {
+            background-color: #dc3545;
+        }
+
+        .filter-group .btn-reset:hover {
+            background-color: #b02a37;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #0055a5;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f5c71a;
+            color: #333;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        .btn-register {
+            padding: 8px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-register:hover {
+            background-color: #218838;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-history {
+            padding: 10px 25px;
+            background-color: #f5c71a;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-history:hover {
+            background-color: #e0b015;
+        }
+
+        .btn-logout {
+            padding: 10px 25px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .btn-logout:hover {
+            background-color: #b02a37;
+        }
+
+        .flash-messages {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .flash-error {
+            color: #dc3545;
+        }
+
+        .flash-success {
+            color: #28a745;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group select,
+            .filter-group input[type="date"] {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .filter-group button {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
-<body style="background-image: url('{{ url_for('static', filename='images/background.png') }}'); background-size: cover;">
+<body>
+    <div class="container">
+        <h2>Welcome, {{ name.capitalize() }}!</h2>
 
-<div class="container">
-    <h1>Welcome, {{ name.capitalize() }}!</h1>
-
-    <h2>Available Exam Sessions</h2>
-
-    <div class="filter-group">
-        <select id="examNameFilter">
-            <option value="">Filter by Exam Name</option>
-            {% for session in available_sessions %}
-                <option value="{{ session.exam_name }}">{{ session.exam_name }}</option>
-            {% endfor %}
-        </select>
-
-        <select id="campusFilter">
-            <option value="">Filter by Campus</option>
-            <option value="Charleston Campus">Charleston Campus</option>
-            <option value="North Las Vegas Campus">North Las Vegas Campus</option>
-            <option value="Henderson Campus">Henderson Campus</option>
-        </select>
-
-        <input type="date" id="dateFilter">
-
-        <select id="timeFilter">
-            <option value="">Filter by Time</option>
-            <option value="morning">Morning (08:00 - 11:59)</option>
-            <option value="afternoon">Afternoon (12:00 - 15:59)</option>
-            <option value="evening">Evening (16:00 - 17:00)</option>
-        </select>
-    </div>
-
-    <div id="examSessions">
-        {% if available_sessions %}
-            {% for session in available_sessions %}
-                <div class="exam-card" 
-                     data-exam="{{ session.exam_name }}" 
-                     data-campus="{{ session.campus }}" 
-                     data-date="{{ session.date }}" 
-                     data-time="{{ session.time }}">
-                    <h3>{{ session.exam_name }}</h3>
-                    <p><strong>Campus:</strong> {{ session.campus }}</p>
-                    <p><strong>Date:</strong> {{ session.date }}</p>
-                    <p><strong>Time:</strong> {{ session.time }}</p>
-                    <p><strong>Proctor:</strong> {{ session.proctor }}</p>
-                    <p><strong>Seats Left:</strong> {{ session.seats }}</p>
-
-                    <form method="POST" action="/register_exam">
-                        <input type="hidden" name="session_id" value="{{ session.session_id }}">
-                        <button type="submit" class="btn">Register</button>
-                    </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <p class="flash-{{ category }}">{{ message }}</p>
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        {% else %}
-            <p>No available sessions at the moment.</p>
-        {% endif %}
+            {% endif %}
+        {% endwith %}
+
+        <h3>Available Exam Sessions</h3>
+
+        <form method="GET" action="/dashboard" class="filter-group">
+            <label for="cert">Filter by Exam Name:</label>
+            <select name="cert" id="cert">
+                <option value="">All</option>
+                {% for cert in certifications %}
+                    <option value="{{ cert[0] }}" {% if cert[0] == selected_cert %}selected{% endif %}>
+                        {{ cert[1] }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="campus">Filter by Campus:</label>
+            <select name="campus" id="campus">
+                <option value="">All</option>
+                {% for campus in campuses %}
+                    <option value="{{ campus[0] }}" {% if campus[0] == selected_campus %}selected{% endif %}>
+                        {{ campus[1] }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="date">Filter by Date:</label>
+            <input type="date" name="date" id="date" value="{{ selected_date if selected_date else '' }}">
+
+            <label for="time">Filter by Time:</label>
+            <select name="time" id="time">
+                <option value="">All</option>
+                {% for time in times %}
+                    <option value="{{ time[0] }}" {% if time[0] == selected_time %}selected{% endif %}>
+                        {{ time[1] }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Filter</button>
+            <button type="button" class="btn-reset" onclick="window.location.href='/dashboard'">Reset Filters</button>
+        </form>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Exam Name</th>
+                        <th>Campus</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Proctor</th>
+                        <th>Seats Available</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if available_sessions %}
+                        {% for session in available_sessions %}
+                            <tr>
+                                <td>{{ session.exam_name }}</td>
+                                <td>{{ session.campus }}</td>
+                                <td>{{ session.date }}</td>
+                                <td>{{ session.time }}</td>
+                                <td>{{ session.proctor }}</td>
+                                <td>{{ session.seats }}</td>
+                                <td>
+                                    <form method="POST" action="/register_exam">
+                                        <input type="hidden" name="session_id" value="{{ session.session_id }}">
+                                        <button type="submit" class="btn-register">Register</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="no-results">No available sessions at the moment.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Your Booked Sessions</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Exam Name</th>
+                        <th>Campus</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Proctor</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if booked_sessions %}
+                        {% for session in booked_sessions %}
+                            <tr>
+                                <td>{{ session.exam_name }}</td>
+                                <td>{{ session.campus }}</td>
+                                <td>{{ session.date }}</td>
+                                <td>{{ session.time }}</td>
+                                <td>{{ session.proctor }}</td>
+                                <td>
+                                    <form method="POST" action="/cancel_exam">
+                                        <input type="hidden" name="session_id" value="{{ session.session_id }}">
+                                        <input type="hidden" name="student_id" value="{{ student_id }}">  
+                                        <button type="submit" class="btn btn-danger">Cancel</button>
+                                    </form>
+                                       
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="no-results">You have no booked sessions.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="actions">
+            <a href="/reservation_history" class="btn-history">View Reservation History</a>
+            <a href="/logout" class="btn-logout">Logout</a>
+        </div>
     </div>
-</div>
-
-<script>
-    const examNameFilter = document.getElementById('examNameFilter');
-    const campusFilter = document.getElementById('campusFilter');
-    const dateFilter = document.getElementById('dateFilter');
-    const timeFilter = document.getElementById('timeFilter');
-    const cards = document.querySelectorAll('.exam-card');
-
-    function filterCards() {
-        const selectedExam = examNameFilter.value.toLowerCase();
-        const selectedCampus = campusFilter.value.toLowerCase();
-        const selectedDate = dateFilter.value;
-        const selectedTime = timeFilter.value;
-
-        cards.forEach(card => {
-            const exam = card.getAttribute('data-exam').toLowerCase();
-            const campus = card.getAttribute('data-campus').toLowerCase();
-            const date = card.getAttribute('data-date');
-            const time = card.getAttribute('data-time');
-
-            let visible = true;
-
-            if (selectedExam && !exam.includes(selectedExam)) {
-                visible = false;
-            }
-
-            if (selectedCampus && !campus.includes(selectedCampus)) {
-                visible = false;
-            }
-
-            if (selectedDate && selectedDate !== formatDate(date)) {
-                visible = false;
-            }
-
-            if (selectedTime) {
-                const sessionHour = parseInt(time.split(':')[0]);
-                if (selectedTime === 'morning' && !(8 <= sessionHour && sessionHour <= 11)) visible = false;
-                if (selectedTime === 'afternoon' && !(12 <= sessionHour && sessionHour <= 15)) visible = false;
-                if (selectedTime === 'evening' && !(16 <= sessionHour && sessionHour <= 17)) visible = false;
-            }
-
-            if (visible) {
-                card.classList.remove('hidden');
-            } else {
-                card.classList.add('hidden');
-            }
-        });
-    }
-
-    function formatDate(inputDate) {
-        const date = new Date(inputDate);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    examNameFilter.addEventListener('change', filterCards);
-    campusFilter.addEventListener('change', filterCards);
-    dateFilter.addEventListener('change', filterCards);
-    timeFilter.addEventListener('change', filterCards);
-</script>
-
 </body>
 </html>
