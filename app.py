@@ -87,74 +87,51 @@ def register():
 
 @app.route('/login', methods=['POST'])
 def login():
-    email = request.form.get('email')
-    password = request.form.get('password')
+    email = request.form.get('email').strip()
+    password = request.form.get('password').strip()
     role = request.form.get('role')
 
     if role == "Faculty":
-        # Faculty login logic
-        query = """
-            SELECT f.FirstName
-            FROM Authentication a
-            JOIN Faculty f ON a.Email = f.Email
-            WHERE a.Email = %s AND a.PasswordHash = %s AND a.Role = 'Faculty'
-        """
-        cursor.execute(query, (email, password))
+        if not email.endswith('@csn.edu'):
+            flash("Faculty must use a valid @csn.edu email.", "error")
+            return redirect(url_for('faculty_portal'))
+
+        # Check if faculty exists
+        cursor.execute("""
+            SELECT AuthID FROM Authentication
+            WHERE Email = %s AND PasswordHash = %s AND Role = 'Faculty'
+        """, (email, password))
         result = cursor.fetchone()
 
-        if result:
-            faculty_name = result[0]
-            return render_template('faculty_dashboard.html', name=faculty_name)
-        else:
-            return render_template('faculty_portal.html', error="Invalid faculty login.")
+        if not result:
+            # Insert into Authentication
+            cursor.execute("""
+                INSERT INTO Authentication (Email, PasswordHash, Role)
+                VALUES (%s, %s, 'Faculty')
+            """, (email, password))
+            db.commit()
 
-    else:
-        # Student login logic
-        query = """
-            SELECT s.StudentID, s.FirstName
-            FROM Authentication a
-            JOIN Students s ON a.Email = s.Email
-            WHERE a.Email = %s AND a.PasswordHash = %s AND a.Role = 'Student'
-        """
-        cursor.execute(query, (email, password))
-        result = cursor.fetchone()
+        # Set session and redirect
+        session['faculty_name'] = email.split('@')[0].capitalize()
+        return redirect(url_for('faculty_dashboard'))
 
-        if result:
-            student_id, student_name = result
+    # ==== Student Login ====
+    cursor.execute("""
+        SELECT s.StudentID, s.FirstName
+        FROM Authentication a
+        JOIN Students s ON a.Email = s.Email
+        WHERE a.Email = %s AND a.PasswordHash = %s AND a.Role = 'Student'
+    """, (email, password))
+    result = cursor.fetchone()
 
-            # Fetch available sessions
-            session_query = """
-                SELECT cs.SessionID, c.CertName, l.CampusName, cs.SessionDate, cs.SessionTime,
-                       f.FirstName, cs.SeatsAvailable
-                FROM CertificationSessions cs
-                JOIN Certifications c ON cs.CertID = c.CertID
-                JOIN Location l ON cs.CampusID = l.CampusID
-                JOIN Faculty f ON cs.FacultyID = f.FacultyID
-                WHERE cs.SeatsAvailable > 0
-                ORDER BY cs.SessionDate, cs.SessionTime
-            """
-            cursor.execute(session_query)
-            session_rows = cursor.fetchall()
+    if result:
+        student_id, student_name = result
+        session['student_id'] = student_id
+        session['student_name'] = student_name
+        return redirect(url_for('dashboard'))
 
-            available_sessions = [
-                {
-                    'session_id': row[0],
-                    'exam_name': row[1],
-                    'campus': row[2],
-                    'date': row[3].strftime('%Y-%m-%d'),
-                    'time': str(row[4])[:-3],  # Trims seconds, e.g., "14:30:00" → "14:30"
-                    'proctor': row[5],
-                    'seats': row[6]
-                }
-                for row in session_rows
-            ]
-
-            session['student_id'] = student_id
-            session['student_name'] = student_name
-            return redirect(url_for('dashboard'))
-
-        else:
-            return render_template('student_portal.html', error="Invalid student login.")
+    flash("Invalid student login.", "error")
+    return redirect(url_for('student_portal'))
 
 @app.route('/register_exam', methods=['POST'])
 def register_exam():
@@ -376,28 +353,24 @@ def history():
     students = cursor.fetchall()
     return render_template('history.html', registrations=students)
 
-@app.route('/faculty_dashboard', methods=['GET'])
+@app.route('/faculty_dashboard')
 def faculty_dashboard():
-    email = request.args.get('email')  # Optional: or pull from session later
-    faculty_name = "Faculty"  # Static placeholder, update if session logic is added
+    faculty_name = session.get('faculty_name', 'Faculty')
 
-    # Get filters from query string
+    # Get filters
     selected_cert = request.args.get('cert')
     selected_campus = request.args.get('campus')
     selected_date = request.args.get('date')
 
-    # Build base query
     query = """
-        SELECT CONCAT(s.FirstName, ' ', s.LastName) AS name, s.Email, c.CertName AS certification,
-               l.CampusName AS campus, cs.SessionDate AS date, cs.SessionTime AS time
+        SELECT CONCAT(s.FirstName, ' ', s.LastName), s.Email, c.CertName, l.CampusName, cs.SessionDate, cs.SessionTime
         FROM Registration r
         JOIN Students s ON r.StudentID = s.StudentID
         JOIN CertificationSessions cs ON r.SessionID = cs.SessionID
         JOIN Certifications c ON cs.CertID = c.CertID
         JOIN Location l ON cs.CampusID = l.CampusID
-        WHERE 1 = 1
+        WHERE 1=1
     """
-    filters = []
     values = []
 
     if selected_cert:
@@ -413,7 +386,7 @@ def faculty_dashboard():
     cursor.execute(query, values)
     results = cursor.fetchall()
 
-    # Get dropdown options
+    # Load filter dropdowns
     cursor.execute("SELECT CertID, CertName FROM Certifications")
     certifications = cursor.fetchall()
 
@@ -422,21 +395,20 @@ def faculty_dashboard():
 
     return render_template('faculty_dashboard.html',
                            name=faculty_name,
-                           results=[
-                               {
-                                   'name': row[0],
-                                   'email': row[1],
-                                   'certification': row[2],
-                                   'campus': row[3],
-                                   'date': row[4].strftime('%b %d, %Y'),
-                                   'time': (datetime.min + row[5]).strftime('%I:%M %p')
-                               } for row in results
-                           ],
+                           results=[{
+                               'name': row[0],
+                               'email': row[1],
+                               'certification': row[2],
+                               'campus': row[3],
+                               'date': row[4].strftime('%Y-%m-%d'),
+                               'time': (datetime.min + row[5]).strftime('%H:%M') if isinstance(row[5], timedelta) else row[5].strftime('%H:%M')
+                           } for row in results],
                            certifications=certifications,
                            campuses=campuses,
                            selected_cert=selected_cert,
                            selected_campus=selected_campus,
                            selected_date=selected_date)
+
 
 @app.route('/faculty_dashboard/export')
 def faculty_dashboard_export():
