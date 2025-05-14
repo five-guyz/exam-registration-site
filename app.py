@@ -165,10 +165,10 @@ def login():
 @app.route('/register_exam', methods=['POST'])
 def register_exam():
     session_id = request.form['session_id']
-    student_id = session.get('student_id')  # Replace with session logic later
+    student_id = session.get('student_id')  # From session
 
     try:
-        # 1. Get the CertID of the selected session
+        # 1. Get CertID
         cursor.execute("SELECT CertID FROM CertificationSessions WHERE SessionID = %s", (session_id,))
         cert_row = cursor.fetchone()
         if not cert_row:
@@ -177,7 +177,7 @@ def register_exam():
 
         cert_id = cert_row[0]
 
-        # 2. Check for duplicate booking of this exam type
+        # 2. Prevent duplicate bookings
         cursor.execute("""
             SELECT COUNT(*)
             FROM Registration r
@@ -188,7 +188,7 @@ def register_exam():
             flash("You've already registered for this exam type.", "error")
             return redirect(url_for('dashboard'))
 
-        # 3. Check if student has already booked 3 different exam types
+        # 3. Limit to 3 exam types
         cursor.execute("""
             SELECT COUNT(DISTINCT cs.CertID)
             FROM Registration r
@@ -199,31 +199,27 @@ def register_exam():
             flash("You can only register for a maximum of 3 different exams.", "error")
             return redirect(url_for('dashboard'))
 
-        # 4. Check if session has available seats (live count)
-        cursor.execute("""
-            SELECT SeatsAvailable FROM CertificationSessions WHERE SessionID = %s
-        """, (session_id,))
+        # 4. Check seat availability
+        cursor.execute("SELECT SeatsAvailable FROM CertificationSessions WHERE SessionID = %s", (session_id,))
         seats_row = cursor.fetchone()
         if not seats_row or seats_row[0] <= 0:
             flash("Sorry, this session is full.", "error")
             return redirect(url_for('dashboard'))
 
-        # Double-check registered count (to prevent race condition)
-        cursor.execute("""
-            SELECT COUNT(*) FROM Registration WHERE SessionID = %s
-        """, (session_id,))
+        # 5. Double-check real-time seat usage
+        cursor.execute("SELECT COUNT(*) FROM Registration WHERE SessionID = %s", (session_id,))
         booked = cursor.fetchone()[0]
         if booked >= seats_row[0]:
             flash("This session has just filled up.", "error")
             return redirect(url_for('dashboard'))
 
-        # 5. Insert registration
+        # 6. Insert registration
         cursor.execute("""
             INSERT INTO Registration (StudentID, SessionID, RegistrationDate)
             VALUES (%s, %s, CURDATE())
         """, (student_id, session_id))
 
-        # 6. Update seat count
+        # 7. Decrease available seat count
         cursor.execute("""
             UPDATE CertificationSessions
             SET SeatsAvailable = SeatsAvailable - 1
@@ -231,12 +227,15 @@ def register_exam():
         """, (session_id,))
 
         db.commit()
+
+        # Redirect to the confirmation screen
         flash("You have successfully registered for the session.", "success")
+        return redirect(url_for('confirmation'))
 
     except mysql.connector.Error as err:
         flash(f"Registration error: {err}", "error")
+        return redirect(url_for('dashboard'))
 
-    return redirect(url_for('dashboard'))
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
@@ -373,7 +372,8 @@ def dashboard():
 
 @app.route('/confirmation')
 def confirmation():
-    return redirect(url_for('dashboard'))
+    return render_template('confirmation.html')
+    ##return redirect(url_for('dashboard'))
 
 
 @app.route('/history')
