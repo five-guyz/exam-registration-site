@@ -87,51 +87,80 @@ def register():
 
 @app.route('/login', methods=['POST'])
 def login():
-    email = request.form.get('email').strip()
-    password = request.form.get('password').strip()
+    email = request.form.get('email')
+    password = request.form.get('password')
     role = request.form.get('role')
 
     if role == "Faculty":
-        if not email.endswith('@csn.edu'):
-            flash("Faculty must use a valid @csn.edu email.", "error")
-            return redirect(url_for('faculty_portal'))
-
-        # Check if faculty exists
+        # Try to find existing faculty
         cursor.execute("""
-            SELECT AuthID FROM Authentication
+            SELECT Email FROM Authentication
             WHERE Email = %s AND PasswordHash = %s AND Role = 'Faculty'
         """, (email, password))
         result = cursor.fetchone()
 
-        if not result:
-            # Insert into Authentication
+        # If not found, auto-create faculty if email ends with @csn.edu
+        if not result and email.endswith('@csn.edu'):
             cursor.execute("""
                 INSERT INTO Authentication (Email, PasswordHash, Role)
                 VALUES (%s, %s, 'Faculty')
             """, (email, password))
             db.commit()
+            result = (email,)  # Simulate a successful fetch
 
-        # Set session and redirect
-        session['faculty_name'] = email.split('@')[0].capitalize()
-        return redirect(url_for('faculty_dashboard'))
+        if result:
+            session['faculty_name'] = email.split('@')[0].capitalize()
+            return redirect(url_for('faculty_dashboard'))
+        else:
+            flash("Invalid faculty credentials.", "error")
+            return redirect(url_for('faculty_portal'))
+    else:
+        # Student login logic
+        query = """
+            SELECT s.StudentID, s.FirstName
+            FROM Authentication a
+            JOIN Students s ON a.Email = s.Email
+            WHERE a.Email = %s AND a.PasswordHash = %s AND a.Role = 'Student'
+        """
+        cursor.execute(query, (email, password))
+        result = cursor.fetchone()
 
-    # ==== Student Login ====
-    cursor.execute("""
-        SELECT s.StudentID, s.FirstName
-        FROM Authentication a
-        JOIN Students s ON a.Email = s.Email
-        WHERE a.Email = %s AND a.PasswordHash = %s AND a.Role = 'Student'
-    """, (email, password))
-    result = cursor.fetchone()
+        if result:
+            student_id, student_name = result
 
-    if result:
-        student_id, student_name = result
-        session['student_id'] = student_id
-        session['student_name'] = student_name
-        return redirect(url_for('dashboard'))
+            # Fetch available sessions
+            session_query = """
+                SELECT cs.SessionID, c.CertName, l.CampusName, cs.SessionDate, cs.SessionTime,
+                       f.FirstName, cs.SeatsAvailable
+                FROM CertificationSessions cs
+                JOIN Certifications c ON cs.CertID = c.CertID
+                JOIN Location l ON cs.CampusID = l.CampusID
+                JOIN Faculty f ON cs.FacultyID = f.FacultyID
+                WHERE cs.SeatsAvailable > 0
+                ORDER BY cs.SessionDate, cs.SessionTime
+            """
+            cursor.execute(session_query)
+            session_rows = cursor.fetchall()
 
-    flash("Invalid student login.", "error")
-    return redirect(url_for('student_portal'))
+            available_sessions = [
+                {
+                    'session_id': row[0],
+                    'exam_name': row[1],
+                    'campus': row[2],
+                    'date': row[3].strftime('%Y-%m-%d'),
+                    'time': str(row[4])[:-3],  # Trims seconds, e.g., "14:30:00" → "14:30"
+                    'proctor': row[5],
+                    'seats': row[6]
+                }
+                for row in session_rows
+            ]
+
+            session['student_id'] = student_id
+            session['student_name'] = student_name
+            return redirect(url_for('dashboard'))
+
+        else:
+            return render_template('student_portal.html', error="Invalid student login.")
 
 @app.route('/register_exam', methods=['POST'])
 def register_exam():
